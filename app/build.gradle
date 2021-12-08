@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
@@ -9,8 +11,8 @@ android {
     defaultConfig {
         minSdk 23
         targetSdk 30
-        versionCode 1701
-        versionName "0.1.7"
+        versionCode 2001
+        versionName "0.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -27,6 +29,18 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    android.libraryVariants.all { variant ->
+        if (variant.name.equalsIgnoreCase("release")) {
+            variant.outputs.all { output ->
+                def f = output.outputFileName
+                if (f != null && f.endsWith('.aar')) {
+                    Date nowTime = new Date()
+                    SimpleDateFormat time = new SimpleDateFormat("YYMMdd")
+                    output.outputFileName = "QzWeb_${defaultConfig.versionCode}_${time.format(nowTime)}.aar"
+                }
+            }
+        }
     }
 }
 

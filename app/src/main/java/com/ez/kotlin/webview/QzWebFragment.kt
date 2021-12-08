@@ -37,7 +37,7 @@ open class QzWebFragment : Fragment() {
     private var onFileChooseListener: OnFileChooseListener? = null
     private var onLoadListener: OnLoadListener? = null
     private var isFirstLoad = false
-    private val isInit = AtomicBoolean(false)
+    private val isInit = AtomicBoolean(true)
     private var url: String? = null
 
     companion object {
