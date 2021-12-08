@@ -57,7 +57,7 @@ var defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   defaultUrl: {
-    value: "document.pdf",
+    value: "404.pdf",
     kind: OptionKind.VIEWER
   },
   defaultZoomValue: {
