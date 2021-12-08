@@ -1,4 +1,4 @@
-package com.ez.kotlin.tbswebview
+package com.ez.kotlin.webview
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.tencent.smtt.export.external.interfaces.JsResult
 import com.tencent.smtt.sdk.*
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * @author : ezhuwx
@@ -24,7 +25,7 @@ import java.util.*
  * E-mail : ezhuwx@163.com
  * Update on 9:35 by ezhuwx
  */
-open class WebViewFragment : Fragment() {
+open class QzWebFragment : Fragment() {
     private lateinit var webViewPb: ProgressBar
     private lateinit var webViewLl: ViewGroup
     private lateinit var webView: WebView
@@ -36,8 +37,8 @@ open class WebViewFragment : Fragment() {
     private var onFileChooseListener: OnFileChooseListener? = null
     private var onLoadListener: OnLoadListener? = null
     private var isFirstLoad = false
-    private val isLoadError = false
-    private var url = ""
+    private val isInit = AtomicBoolean(false)
+    private var url: String? = null
 
     companion object {
         const val TAG = "TbsWebView"
@@ -47,11 +48,11 @@ open class WebViewFragment : Fragment() {
         const val IS_LOADING_PROGRESS = "is_loading_progress"
 
         fun newInstance(
-            url: String,
+            url: String? = null,
             isLoadingProgress: Boolean,
             isCanZoomControl: Boolean
-        ): WebViewFragment {
-            val fragment = WebViewFragment()
+        ): QzWebFragment {
+            val fragment = QzWebFragment()
             val bundle = Bundle()
             bundle.putString(URL, url)
             bundle.putBoolean(IS_CAN_ZOOM_CONTROL, isCanZoomControl)
@@ -61,10 +62,10 @@ open class WebViewFragment : Fragment() {
         }
 
         fun newInstance(
-            url: String,
+            url: String? = null,
             isCanZoomControl: Boolean
-        ): WebViewFragment {
-            val fragment = WebViewFragment()
+        ): QzWebFragment {
+            val fragment = QzWebFragment()
             val bundle = Bundle()
             bundle.putString(URL, url)
             bundle.putBoolean(IS_CAN_ZOOM_CONTROL, isCanZoomControl)
@@ -72,8 +73,8 @@ open class WebViewFragment : Fragment() {
             return fragment
         }
 
-        fun newInstance(url: String): WebViewFragment {
-            val fragment = WebViewFragment()
+        fun newInstance(url: String? = null): QzWebFragment {
+            val fragment = QzWebFragment()
             val bundle = Bundle()
             bundle.putString(URL, url)
             fragment.arguments = bundle
@@ -88,7 +89,7 @@ open class WebViewFragment : Fragment() {
     ): View? {
         isFirstLoad = true
         arguments?.run {
-            url = getString(URL, "")
+            url = getString(URL, null)
             isCanZoomControl = getBoolean(IS_CAN_ZOOM_CONTROL, true)
             isLoadingProgress = getBoolean(IS_LOADING_PROGRESS, true)
         }
@@ -129,8 +130,16 @@ open class WebViewFragment : Fragment() {
         jsListener()
         initWebVideo()
         overrideWebView()
-        onWebViewListener?.onWebView(webView)
-        webView.loadUrl(url)
+        url?.let {
+            webView.loadUrl(it)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isInit.compareAndSet(true, false)) {
+            onWebViewListener?.onWebView(webView)
+        }
     }
 
     /**
@@ -138,7 +147,7 @@ open class WebViewFragment : Fragment() {
      */
     private fun initWebView() {
         with(webView.settings) {
-            this@WebViewFragment.webSettings = this
+            this@QzWebFragment.webSettings = this
             //支持缩放，默认为true。是setBuiltInZoomControls的前提。
             setSupportZoom(isCanZoomControl)
             //设置内置的缩放控件。若为false，则该WebView不可缩放
@@ -184,9 +193,7 @@ open class WebViewFragment : Fragment() {
     private fun overrideWebView() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                if (!isLoadError && !url.lowercase(Locale.getDefault()).startsWith("http")) {
-                    return true
-                }
+                view.loadUrl(url)
                 Log.i(TAG, url)
                 return true
             }

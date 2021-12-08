@@ -1,4 +1,4 @@
-package com.ez.kotlin.tbswebview
+package com.ez.kotlin.webview
 
 import android.app.Application
 import android.content.Context
@@ -18,13 +18,13 @@ import java.util.HashMap
  * E-mail : ezhuwx@163.com
  * Update on 9:30 by ezhuwx
  */
-object TbsUtils {
-    lateinit var mContext: Application
-    const val TAG = "TbsLoadUtil"
+open class TbsUtils {
+    lateinit var mContext: Context
+    val TAG = "TbsLoadUtil"
     var mInit = false
 
     fun init(mContext: Application) {
-        this.mContext = mContext
+        this.mContext = mContext.applicationContext
         initSdk()
         QbSdk.setTbsListener(object : TbsListener {
             override fun onDownloadFinish(i: Int) {
@@ -59,7 +59,7 @@ object TbsUtils {
             override fun onCoreInitFinished() {}
             override fun onViewInitFinished(init: Boolean) {
                 mInit = init
-                Log.e(TAG, "加载内核是否成功：$init")
+                Log.e(TAG, "Tbs Load：$init")
                 if (!mInit && TbsDownloader.needDownload(mContext, false)
                     && !TbsDownloader.isDownloading()
                 ) {

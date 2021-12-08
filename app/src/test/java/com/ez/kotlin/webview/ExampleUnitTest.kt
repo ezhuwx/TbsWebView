@@ -1,4 +1,4 @@
-package com.ez.kotlin.tbswebview
+package com.ez.kotlin.webview
 
 import org.junit.Test
 
